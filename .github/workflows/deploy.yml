@@ -11,9 +11,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Publish Plugin to WordPress.org
-        uses: stablepress/action-wordpress-plugin-deploy@v2
+      - name: Publish to WordPress SVN
         env:
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SLUG: nsk-quick-stock-manager
           WP_USERNAME: nskdev
+        run: |
+          sudo apt-get update && sudo apt-get install -y subversion
+          
+          echo "Checking out WordPress SVN repository..."
+          svn co --non-interactive https://plugins.svn.wordpress.org/nsk-quick-stock-manager svn-repo
+          
+          echo "Copying plugin files to trunk..."
+          rsync -av --exclude='.git' --exclude='.github' ./ svn-repo/trunk/
+          
+          cd svn-repo
+          svn status
+          
+          echo "Adding new files to SVN..."
+          svn status | grep '^\?' | awk '{print $2}' | xargs -r svn add --non-interactive
+          
+          echo "Committing to WordPress.org..."
+          svn commit --non-interactive --username "$WP_USERNAME" --password "$SVN_PASSWORD" -m "Automated deployment from GitHub Actions"
+          
+          echo "Deployment completed successfully!"
