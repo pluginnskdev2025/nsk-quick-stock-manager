@@ -1,16 +1,19 @@
 name: Deploy to WordPress.org
 
 on:
-  push:
-    branches: [ main ]
+      push:
+        branches: [ main ]
 
 jobs:
-  tag:
-    name: New WordPress Plugin Deploy
+  deploy:
+    name: WordPress Plugin Deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Install Subversion
+        run: sudo apt-get update && sudo apt-get install -y subversion
 
       - name: WordPress Plugin Deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
