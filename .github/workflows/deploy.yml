@@ -22,11 +22,10 @@ jobs:
           echo "Checking out WordPress SVN repository..."
           svn co --non-interactive https://plugins.svn.wordpress.org/nsk-quick-stock-manager svn-repo
           
-          echo "Copying plugin files to trunk..."
-          rsync -av --exclude='.git' --exclude='.github' ./ svn-repo/trunk/
+          echo "Copying plugin files to trunk (excluding svn-repo folder)..."
+          rsync -av --exclude='.git' --exclude='.github' --exclude='svn-repo' ./ svn-repo/trunk/
           
           cd svn-repo
-          svn status
           
           echo "Adding new files to SVN..."
           svn status | grep '^\?' | awk '{print $2}' | xargs -r svn add --non-interactive
